@@ -12,8 +12,18 @@
     "dev": "ts-node index.ts"
   },
   "dependencies": {
+    "@types/koa": "^2.11.0",
+    "@types/koa-router": "^7.0.42",
+    "@types/oauth": "^0.9.1",
+    "@types/twit": "^2.2.23",
     "axios": "^0.19.0",
-    "axios-retry": "^3.1.2"
+    "axios-retry": "^3.1.2",
+    "koa": "^2.11.0",
+    "koa-body": "^4.1.1",
+    "koa-router": "^7.4.0",
+    "oauth": "^0.9.15",
+    "telegraf": "^3.34.1",
+    "twit": "^2.2.11"
   },
   "devDependencies": {
     "@types/node": "^12.12.21",
