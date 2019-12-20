@@ -2,6 +2,7 @@ import Oauth from 'oauth';
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import Config from './tools/getConfig';
+import Sleep from './tools/sleep';
 
 const config = Config();
 
@@ -40,7 +41,7 @@ router.get('/session/connect', async (ctx, next) => {
             ctx.response.redirect('https://twitter.com/oauth/authorize?oauth_token=' + oauthRequestToken);
         }
     });
-    await sleep(1000);
+    await Sleep(1000);
     await next();
 });
 
@@ -60,7 +61,7 @@ router.get('/session/callback', async (ctx, next) => {
                 ctx.response.redirect('/');
             }
         });
-    await sleep(1000);
+    await Sleep(1000);
     await next();
 });
 
@@ -78,16 +79,10 @@ router.get('/', async (ctx, next) => {
                 ctx.body = data;
             }
         });
-    await sleep(1000);
+    await Sleep(1000);
     await next();
 });
 
 app.use(router.routes());
 app.use(router.allowedMethods());
 app.listen(8080);
-
-function sleep(ms: number) {
-    return new Promise((res) => {
-        setTimeout(res, ms);
-    });
-}
