@@ -3,6 +3,8 @@ import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import Config from './tools/getConfig';
 import Sleep from './tools/sleep';
+import tgIds from './tools/datebase';
+import tgBot from './telegram/bot';
 
 const config = Config();
 
@@ -27,12 +29,15 @@ let oauthRequestTokenSecret = '';
 let oauthAccessToken = '';
 let oauthAccessTokenSecret = '';
 
+let tgId = '';
+
 app.use(async (ctx, next) => {
     console.log(`Process ${ctx.request.method} ${ctx.request.url}...`);
     await next();
 });
 
 router.get('/session/connect', async (ctx, next) => {
+    if (ctx.request.query.tgId) tgId = ctx.request.query.tgId;
     consumer.getOAuthRequestToken((err, oauthToken, oauthTokenSecret) => {
         if (err) ctx.body = 'GET /session/connect failed';
         else {
@@ -70,13 +75,21 @@ router.get('/', async (ctx, next) => {
         "https://api.twitter.com/1.1/account/verify_credentials.json",
         oauthAccessToken,
         oauthAccessTokenSecret,
-        (err, data) => {
-            if (err) {
-                console.log(err);
-                ctx.response.redirect('/session/connect');
-            }
+        async (err, data) => {
+            if (err) ctx.response.redirect('/session/connect');
             else {
-                ctx.body = data;
+                if (data && typeof data === 'string') {
+                    try {
+                        const json = JSON.parse(data);
+                        const twitter = json.id_str;
+                        tgIds.insert({ tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
+                        await Sleep(1000);
+                        tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
+                        ctx.body = 'Success!';
+                    } catch (err) {
+                        ctx.body = err;
+                    }
+                }
             }
         });
     await Sleep(1000);

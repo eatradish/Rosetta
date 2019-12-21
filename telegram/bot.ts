@@ -1,14 +1,17 @@
 import Telegraf from 'telegraf';
 import Config from '../tools/getConfig';
 import getMessageArgs from '../tools/tgGetMessageArgs';
-import Axios from 'axios';
-const config = Config('../config.json');
+import Tgids from '../tools/datebase';
+
+const config = Config('./config.json');
+
 
 const tgBot = new Telegraf(config.tgBotToken);
 
 tgBot.command('login', async (ctx) => {
-    const oauthUrl = await Axios.get('http://localhost:8080/session/connect');
-    ctx.reply(`Please Open ${oauthUrl} authorize Rosetta`);
+    if (ctx.chat) {
+        ctx.reply(`Please Open ${config.twitter.oauth_url}/session/connect?tgId=${ctx.chat.id} authorize Rosetta`);
+    }
 });
 
 tgBot.launch();
