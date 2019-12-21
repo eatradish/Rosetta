@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import Config from './tools/getConfig';
-import tgIds from './tools/datebase';
+import dateStore from './tools/datebase';
 import tgBot from './telegram/bot';
 import AsyncOauth from './tools/asyncOauth';
 
@@ -80,7 +80,7 @@ router.get('/', async (ctx, next) => {
         );
         const json = JSON.parse(data);
         const twitter = json.id_str;
-        tgIds.insert({ tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
+        dateStore.getCollection('tgIds').insert({ tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
         tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
         ctx.body = 'Success!';
     } catch (err) {

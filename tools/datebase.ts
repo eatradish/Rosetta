@@ -1,28 +1,21 @@
-import DataStore from './AsyncLoki';
-import Sleep from './sleep';
+import Loki from 'lokijs';
 
+const db = new Loki('./datebase.db', {
+    autoloadCallback : databaseInitialize,
+    autoload: true,
+    autosave: true,
+    autosaveInterval: 4000
+});
 
-const db = new DataStore('../datebase.db');
-
-const load = async () => {
-    await db.loadDatabaseAsync();
-};
-
-load();
-
-let tgIds = db.getCollection('tgIds');
-if (!tgIds) {
-    tgIds = db.addCollection(
-        'tgIds', 
-        { indices: ['tgId', 'twitter', 'oauthAccessToken', 'oauthAccessTokenSecret'] }
-    );
+function databaseInitialize() {
+    let tgIds = db.getCollection("tgIds");
+    if (!tgIds) {
+        tgIds = db.addCollection(
+            "tgIds",
+            { indices: ['tgId', 'twitter', 'oauthAccessToken', 'oauthAccessTokenSecret'] }
+        );
+    }
 }
-//tgIds.insert( { tgId: '123', twitter: '456', oauthAccessToken: '789', oauthAccessTokenSecret: '111' } );
+
+export default db;
 //console.log(tgIds.data);
-const save = async () => {
-    await db.saveDatabaseAsync();
-};
-
-save();
-
-export default tgIds;
