@@ -10,7 +10,13 @@ const tgBot = new Telegraf(config.tgBotToken);
 
 tgBot.command('login', async (ctx) => {
     if (ctx.chat) {
-        ctx.reply(`Please Open ${config.twitter.oauth_url}/session/connect?tgId=${ctx.chat.id} authorize Rosetta`);
+        const tgId = ctx.chat.id.toString();
+        const result = Tgids.find({ tgId });
+        if (result.length === 0) {
+            ctx.reply(`Please Open ${config.twitter.oauth_url}/session/connect?tgId=${ctx.chat.id} authorize Rosetta`);
+        } else {
+            ctx.reply('Hi, you account is exist');
+        }
     }
 });
 
