@@ -4,7 +4,6 @@ import Config from './tools/getConfig';
 import tgIds from './tools/datebase';
 import tgBot from './telegram/bot';
 import AsyncOauth from './tools/asyncOauth';
-import Sleep from './tools/sleep';
 
 const config = Config();
 
