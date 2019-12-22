@@ -1,7 +1,7 @@
 import Loki from 'lokijs';
 
 const db = new Loki('./datebase.db', {
-    autoloadCallback : databaseInitialize,
+    autoloadCallback: databaseInitialize,
     autoload: true,
     autosave: true,
     autosaveInterval: 4000

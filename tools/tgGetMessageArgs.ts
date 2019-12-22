@@ -1,4 +1,4 @@
-function tgGetMessageArgs(message: string): String[] {
+function tgGetMessageArgs(message: string): string[] {
     return message.split(' ').slice(1);
 }
 

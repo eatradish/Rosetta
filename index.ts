@@ -62,6 +62,7 @@ router.get('/session/callback', async (ctx, next) => {
             oauthRequestTokenSecret, 
             oauthAccessVerifier
         );
+
         oauthAccessToken = oauthAccess.oauthAccessToken;
         oauthAccessTokenSecret = oauthAccess.oauthAccessTokenSecret;
         ctx.response.redirect('/');
@@ -80,12 +81,18 @@ router.get('/', async (ctx, next) => {
         );
         const json = JSON.parse(data);
         const twitter = json.id_str;
-        dateStore.getCollection('tgIds').insert({ tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
-        tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
-        ctx.body = 'Success!';
-    } catch (err) {
-        ctx.body = err.message;
+        const users = dateStore.getCollection('tgIds');
+
+        if (tgId !== '' && users.find({ tgId }).length === 0) {
+            users.insert({ tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
+            tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
+        }
+
+        ctx.body = 'success';
+    } catch {
+        ctx.redirect('/session/connect');
     }
+
     await next();
 });
 

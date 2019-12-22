@@ -2,13 +2,14 @@ import Telegraf from 'telegraf';
 import Config from '../tools/getConfig';
 import getMessageArgs from '../tools/tgGetMessageArgs';
 import db from '../tools/datebase';
+import Twitter from '../twitter/bot';
+import { User } from '../interface';
 
 const config = Config('./config.json');
 
-
 const tgBot = new Telegraf(config.tgBotToken);
 
-tgBot.command('login', (ctx) => {
+tgBot.command('login', async (ctx, next: any) => {
     if (ctx.chat) {
         const tgId = ctx.chat.id.toString();
         const result = db.getCollection('tgIds').find({ tgId });
@@ -18,10 +19,11 @@ tgBot.command('login', (ctx) => {
             ctx.reply('Hi, you account is exist');
         }
     }
+    await next();
 });
 
-tgBot.command('myinfo', (ctx) => {
-    if (!ctx.chat) throw new Error('oops, cannot get chat id');
+tgBot.command('myinfo', async (ctx, next: any) => {
+    if (!ctx.chat) throw new Error('oops, cannot your get chat id');
     const tgId = ctx.chat.id.toString();
     const result = db.getCollection('tgIds').find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
@@ -33,7 +35,33 @@ tgBot.command('myinfo', (ctx) => {
         }
         ctx.reply(`You Telegram account: ${result[0].tgId} and you Twitter account: ${account}`);
     }
-})
+    await next();
+});
+
+tgBot.command('tweet', async (ctx, next: any) => {
+    if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
+    const tgId = ctx.chat.id.toString();
+    const result = db.getCollection('tgIds').find({ tgId });
+    if (result.length === 0) ctx.reply('You account does not exist');
+    else {
+        const args = ctx.message.text;
+        const text = getMessageArgs(args).join(' ');
+        const user = result[0] as User;
+        const twitter = new Twitter(user);
+        try {
+            const tweet = await twitter.tweet(text);
+            if (tweet) ctx.reply(tweet);
+        } catch (err) {
+            console.log(err.message);
+            ctx.reply('failed');
+        }
+    }
+    await next();
+});
+
+tgBot.catch((err: any, ctx: any) => {
+    console.log(`Ooops, ecountered an error for ${ctx.updateType}`, err);
+});
 
 tgBot.launch();
 

@@ -26,12 +26,33 @@ class AsyncOauth extends Oauth.OAuth {
         });
     }
 
-    public getAsync(url: string, oauthToken: string, oauthTokenSecret: string): any {
+    public getAsync(url: string, oauthAccessToken: string, oauthAccessTokenSecret: string): any {
         return new Promise((resolve, reject) => {
-            this.get(url, oauthToken, oauthTokenSecret, (err, data) => {
+            this.get(url, oauthAccessToken, oauthAccessTokenSecret, (err, data) => {
                 if (err) reject(err);
                 else resolve(data);
             });
+        });
+    }
+
+    public postAsync(
+        url: string,
+        oauthAccessToken: string,
+        oauthAccessTokenSecret: string,
+        body?: any,
+        connectType?: string
+    ): any {
+        return new Promise((resolve, reject) => {
+            this.post(
+                url,
+                oauthAccessToken,
+                oauthAccessTokenSecret,
+                body,
+                connectType,
+                (err: any, data: any) => {
+                    if (err) reject(err);
+                    else resolve(data);
+                });
         });
     }
 }

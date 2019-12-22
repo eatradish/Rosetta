@@ -8,3 +8,10 @@ export interface Config {
         oauth_url: string;
     }
 }
+
+export interface User {
+    tgId: string;
+    twitter: string;
+    oauthAccessToken: string;
+    oauthAccessTokenSecret: string;
+}
