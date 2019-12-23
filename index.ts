@@ -83,6 +83,7 @@ router.get('/', async (ctx, next) => {
         const twitter = json.id_str;
         const username = json.screen_name;
         const users = db.getCollection('Users');
+        const password = '';
 
         if (tgId !== '' && users.find({ tgId }).length === 0) {
             console.log(json);

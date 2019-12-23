@@ -15,6 +15,7 @@ function databaseInitialize() {
             { 
                 indices: [
                     'username',
+                    'password',
                     'tgId',
                     'twitter',
                     'oauthAccessToken',
