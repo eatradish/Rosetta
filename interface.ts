@@ -16,7 +16,7 @@ export interface User {
     twitter: string;
     oauthAccessToken: string;
     oauthAccessTokenSecret: string;
-    timeRule: {}[];
+    timeRule: TimeRule[];
     blockRule: {}[];
 }
 
@@ -28,4 +28,11 @@ export interface OAuthRequestValue {
 export interface OAuthAccessValue {
     oauthAccessToken: string;
     oauthAccessTokenSecret: string;
+}
+
+export interface TimeRule {
+    time: string;
+    tweet: string;
+    date: string;
+    UTC: string;
 }
