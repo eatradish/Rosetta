@@ -48,19 +48,6 @@ class Twitter {
             throw new Error(err.message);
         }
     }
-
-    public async getTweet(id: string) {
-        try {
-            const tweet = await this.consumer.getAsync(
-                this.url + `/statuses/show.json?id=${id}&`,
-                this.oauthAccessToken,
-                this.oauthAccessTokenSecret
-            )
-            if (tweet) return JSON.parse(tweet);
-        } catch (err) {
-            throw new Error(err.message);
-        }
-    }
 }
 
 export default Twitter;

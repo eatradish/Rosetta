@@ -86,7 +86,17 @@ router.get('/', async (ctx, next) => {
         const password = '';
 
         if (tgId !== '' && users.find({ tgId }).length === 0) {
-            users.insert({ username, password, tgId, twitter, oauthAccessToken, oauthAccessTokenSecret });
+            users.insert({ 
+                username,
+                password,
+                tgId,
+                twitter,
+                oauthAccessToken,
+                oauthAccessTokenSecret,
+                timeRule: [],
+                blockRule: []
+            });
+
             tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
         }
 
