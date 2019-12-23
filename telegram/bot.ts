@@ -12,12 +12,14 @@ const tgBot = new Telegraf(config.tgBotToken);
 tgBot.command('login', async (ctx, next: any) => {
     if (ctx.chat) {
         const tgId = ctx.chat.id.toString();
-        const result = db.getCollection('tgIds').find({ tgId });
+        const result = db.getCollection('Users').find({ tgId });
         if (result.length === 0) {
             ctx.reply(`Please Open ${config.twitter.oauth_url}/session/connect?tgId=${ctx.chat.id} authorize Rosetta`);
         } else {
             ctx.reply('Hi, you account is exist');
         }
+    } else {
+        throw new Error('oops cannoy get your chat');
     }
     await next();
 });
@@ -25,7 +27,7 @@ tgBot.command('login', async (ctx, next: any) => {
 tgBot.command('myinfo', async (ctx, next: any) => {
     if (!ctx.chat) throw new Error('oops, cannot your get chat id');
     const tgId = ctx.chat.id.toString();
-    const result = db.getCollection('tgIds').find({ tgId });
+    const result = db.getCollection('Users').find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
     else {
         let account = '\n';
@@ -41,7 +43,7 @@ tgBot.command('myinfo', async (ctx, next: any) => {
 tgBot.command('tweet', async (ctx, next: any) => {
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
-    const result = db.getCollection('tgIds').find({ tgId });
+    const result = db.getCollection('Users').find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
     else {
         const args = ctx.message.text;

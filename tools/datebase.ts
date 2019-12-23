@@ -8,11 +8,21 @@ const db = new Loki('./datebase.db', {
 });
 
 function databaseInitialize() {
-    let tgIds = db.getCollection("tgIds");
-    if (!tgIds) {
-        tgIds = db.addCollection(
-            "tgIds",
-            { indices: ['tgId', 'twitter', 'oauthAccessToken', 'oauthAccessTokenSecret'] }
+    let users = db.getCollection("Users");
+    if (!users) {
+        users = db.addCollection(
+            "Users",
+            { 
+                indices: [
+                    'username',
+                    'tgId',
+                    'twitter',
+                    'oauthAccessToken',
+                    'oauthAccessTokenSecret',
+                    'timeRule',
+                    'blockRule'
+                ],
+            }
         );
     }
 }
