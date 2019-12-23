@@ -10,8 +10,12 @@ export interface Config {
 }
 
 export interface User {
+    username: string;
+    password: string;
     tgId: string;
     twitter: string;
     oauthAccessToken: string;
     oauthAccessTokenSecret: string;
+    timeRule: {}[];
+    blockRule: {}[];
 }
