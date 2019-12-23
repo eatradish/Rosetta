@@ -40,6 +40,7 @@ class Twitter {
                 body,
                 'application/json'
             );
+            if (typeof data !== 'string') return 'cannot get tweet data';
             const json = JSON.parse(data);
             if (json.id_str) {
                 return `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;               

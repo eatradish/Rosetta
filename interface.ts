@@ -19,3 +19,13 @@ export interface User {
     timeRule: {}[];
     blockRule: {}[];
 }
+
+export interface OAuthRequestValue {
+    oauthRequestToken: string;
+    oauthRequestTokenSecret: string;
+}
+
+export interface OAuthAccessValue {
+    oauthAccessToken: string;
+    oauthAccessTokenSecret: string;
+}

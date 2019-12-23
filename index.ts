@@ -39,9 +39,9 @@ router.get('/session/connect', async (ctx, next) => {
     if (ctx.request.query.tgId) tgId = ctx.request.query.tgId;
     try {
         const oauthRequest = await consumer.getOAuthRequestTokenAsync();
-        if (oauthRequest.oauthToken && oauthRequest.oauthTokenSecret) {
-            oauthRequestToken = oauthRequest.oauthToken;
-            oauthRequestTokenSecret = oauthRequest.oauthTokenSecret;
+        if (oauthRequest.oauthRequestToken && oauthRequest.oauthRequestTokenSecret) {
+            oauthRequestToken = oauthRequest.oauthRequestToken;
+            oauthRequestTokenSecret = oauthRequest.oauthRequestTokenSecret;
             ctx.response.redirect('https://twitter.com/oauth/authorize?oauth_token=' + oauthRequestToken);
         } else {
             throw new Error('getOAuthRequestToken failed');
@@ -79,6 +79,10 @@ router.get('/', async (ctx, next) => {
             oauthAccessToken,
             oauthAccessTokenSecret
         );
+        if (typeof data !== 'string') {
+            console.log('data type not string');
+            return;
+        }
         const json = JSON.parse(data);
         const twitter = json.id_str;
         const username = json.screen_name;
