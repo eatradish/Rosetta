@@ -9,7 +9,7 @@ const config = Config('./config.json');
 
 const tgBot = new Telegraf(config.tgBotToken);
 
-tgBot.command('login', async (ctx, next: any) => {
+tgBot.command('login', async (ctx, next) => {
     if (ctx.chat) {
         const tgId = ctx.chat.id.toString();
         const result = db.getCollection('Users').find({ tgId });
@@ -21,10 +21,10 @@ tgBot.command('login', async (ctx, next: any) => {
     } else {
         throw new Error('oops cannoy get your chat');
     }
-    await next();
+    await next!();
 });
 
-tgBot.command('myinfo', async (ctx, next: any) => {
+tgBot.command('myinfo', async (ctx, next) => {
     if (!ctx.chat) throw new Error('oops, cannot your get chat id');
     const tgId = ctx.chat.id.toString();
     const result = db.getCollection('Users').find({ tgId });
@@ -37,10 +37,10 @@ tgBot.command('myinfo', async (ctx, next: any) => {
         }
         ctx.reply(`You Telegram account: ${result[0].tgId} and you Twitter account: ${account}`);
     }
-    await next();
+    await next!();
 });
 
-tgBot.command('tweet', async (ctx, next: any) => {
+tgBot.command('tweet', async (ctx, next) => {
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
     const result = db.getCollection('Users').find({ tgId });
@@ -58,10 +58,10 @@ tgBot.command('tweet', async (ctx, next: any) => {
             ctx.reply('failed');
         }
     }
-    await next();
+    await next!();
 });
 
-tgBot.command('add_time_rule_tweet', async (ctx, next: any) => {
+tgBot.command('add_time_rule_tweet', async (ctx, next) => {
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
     const users = db.getCollection('Users');
@@ -95,7 +95,7 @@ tgBot.command('add_time_rule_tweet', async (ctx, next: any) => {
             console.log(err);
         }
     }
-    await next();
+    await next!();
 });
 
 tgBot.catch((err: any, ctx: any) => {
