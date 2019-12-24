@@ -16,8 +16,8 @@ const loopGetNewReply = async () => {
             if (userMentiom.length === 0) {
                 mentionTable.insert({ username: user.username, mention: [[data[0].id_str, data[0].text]]});
             }
-            const LastMentionList = mentionTable.find({ username: user.username })[0].mention[0];
-            const sinceId = LastMentionList[0];
+            const LastMentionList = mentionTable.find({ username: user.username })[0].mention;
+            const sinceId = LastMentionList[LastMentionList.length - 1][0];
             const data2 = await twitter.getNewMention(50, sinceId);
             if (data2.length !== 0) {
                 mentionTable.findAndUpdate({ username: user.username }, (res) => {
@@ -33,7 +33,7 @@ const loopGetNewReply = async () => {
                 }
             }
         }
-        await sleep(1000);
+        await sleep(180000);
     }
 }
 
