@@ -1,7 +1,7 @@
 import Telegraf from 'telegraf';
 import Config from '../tools/getConfig';
 import getMessageArgs from '../tools/tgGetMessageArgs';
-import db from '../tools/datebase';
+import db from '../tools/database';
 import Twitter from '../twitter/bot';
 import { User } from '../interface';
 
@@ -95,6 +95,12 @@ tgBot.command('add_time_rule_tweet', async (ctx, next) => {
             console.log(err);
         }
     }
+    await next!();
+});
+
+tgBot.on('text', async (ctx, next) => {
+    if (!ctx.message || !ctx.message.text) return;
+    console.log(ctx.message);
     await next!();
 });
 

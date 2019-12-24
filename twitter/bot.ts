@@ -30,7 +30,7 @@ class Twitter {
         this.oauthAccessTokenSecret = user.oauthAccessTokenSecret;
     }
 
-    public async tweet(text: string) {
+    public async tweet(text: string): Promise<string> {
         try {
             const body = { status: text };
             const data = await this.consumer.postAsync(
@@ -43,10 +43,51 @@ class Twitter {
             if (typeof data !== 'string') return 'cannot get tweet data';
             const json = JSON.parse(data);
             if (json.id_str) {
-                return `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;               
+                return '' +
+                    `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;
+            } else {
+                return 'failed';
             }
         } catch (err) {
-            throw new Error(err.message);
+            throw err;
+        }
+    }
+
+    public async getNewMention(count?: number, sinceId?: number): Promise<any | any[]> {
+        const countArg = count ? `count=${count}&` : '';
+        const sinceIdArg = sinceId ? `since_id=${sinceId}&` : '';
+        try {
+            const data = await this.consumer.getAsync(
+                this.url + `/statuses/mentions_timeline.json?${countArg}${sinceIdArg}`,
+                this.oauthAccessToken,
+                this.oauthAccessTokenSecret
+            );
+            if (typeof data !== 'string') return 'cannot get tweet data';
+            const json = JSON.parse(data);
+            return json;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    public async replyToTweet(tweetId: string, text: string): Promise<string> {
+        try {
+            const data = await this.consumer.postAsync(
+                this.url + '/statuses/update.json',
+                this.oauthAccessToken,
+                this.oauthAccessTokenSecret,
+                { in_reply_to_status_id: tweetId, status: text },
+                'application/json'
+            );
+            if (typeof data !== 'string') return 'cannot get tweet data';
+            const json = JSON.parse(data);
+            if (json.id_str) {
+                return `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;
+            } else {
+                return 'failed';
+            }
+        } catch (err) {
+            throw err;
         }
     }
 }

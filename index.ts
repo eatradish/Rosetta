@@ -1,9 +1,10 @@
 import Koa from 'koa';
 import KoaRouter from 'koa-router';
 import Config from './tools/getConfig';
-import db from './tools/datebase';
+import db from './tools/database';
 import tgBot from './telegram/bot';
 import AsyncOauth from './tools/asyncOauth';
+import loopGetNewReply from './loopTesk';
 
 const config = Config();
 
@@ -104,7 +105,7 @@ router.get('/', async (ctx, next) => {
             tgBot.telegram.sendMessage(Number(tgId), `Hi, ${json.name}`);
         }
 
-        ctx.body = 'success';
+        ctx.body = `Hi, ${json.name}`;
     } catch {
         ctx.redirect('/session/connect');
     }
@@ -115,3 +116,5 @@ router.get('/', async (ctx, next) => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 app.listen(8080);
+
+loopGetNewReply();

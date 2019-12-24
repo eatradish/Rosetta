@@ -36,3 +36,8 @@ export interface TimeRule {
     date: string;
     UTC: string;
 }
+
+export interface Mention {
+    username: string;
+    mention: string[][];
+}

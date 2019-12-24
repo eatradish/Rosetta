@@ -21,7 +21,7 @@ class DataStore extends Loki {
     }
 }
 
-const db = new DataStore('./datebase.db', {
+const db = new DataStore('./database.json', {
     autoloadCallback: databaseInitialize,
     autoload: true,
     autosave: true,
@@ -30,6 +30,7 @@ const db = new DataStore('./datebase.db', {
 
 function databaseInitialize() {
     let users = db.getCollection("Users");
+    let mention = db.getCollection("Mention");
     if (!users) {
         users = db.addCollection(
             "Users",
@@ -47,7 +48,7 @@ function databaseInitialize() {
             }
         );
     }
+    if (!mention) mention = db.addCollection('Mention', { indices: ['username', 'mention'] });
 }
 
 export default db;
-//console.log(tgIds.data);
