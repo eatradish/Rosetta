@@ -90,6 +90,24 @@ class Twitter {
             throw err;
         }
     }
+
+    public async deleteTweet(tweetId: string) {
+        try {
+            const data = await  this.consumer.postAsync(
+                this.url + `/statuses/destroy/${tweetId}.json`,
+                this.oauthAccessToken,
+                this.oauthAccessTokenSecret,
+                null,
+                'application/json'
+            )
+            if (typeof data !== 'string') return 'cannot get tweet data';
+            const json = JSON.parse(data);
+            if (data) return `Tweet https://twitter.com/${json.user.screen_name}/status/${tweetId} removed`;
+            else return `cannot remove ${tweetId}`;
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 export default Twitter;

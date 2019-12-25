@@ -102,6 +102,28 @@ tgBot.command('add_time_rule_tweet', async (ctx, next) => {
     await next!();
 });
 
+tgBot.command('delete_tweet', async (ctx, next) => {
+    if (!ctx.message || !ctx.message.text || !ctx.chat) return;
+    const tgId = ctx.chat.id.toString();
+    const users = db.getCollection('Users').find({ tgId });
+    if (users.length === 0) ctx.reply('Your telegram id does not exist');
+    const user = users[0];
+    const args = getMessageArgs(ctx.message.text);
+    try {
+        const twitter = new Twitter(user);
+        let res = '';
+        if (!isNaN(Number(args[0]))) {
+            res = await twitter.deleteTweet(args[0]);
+        } else if (!isNaN(Number(args[0].split('/')[args[0].split('/').length - 1]))) {
+            res = await twitter.deleteTweet(args[0].split('/')[args[0].split('/').length - 1]);
+        }
+        if (res !== '') ctx.reply(res);
+    } catch (err) {
+        throw err;
+    }
+    await next!();
+});
+
 tgBot.on('text', async (ctx, next) => {
     if (!ctx.message || !ctx.message.text || !ctx.chat) return;
     if (!ctx.message.reply_to_message || !ctx.message.reply_to_message.text) return;
