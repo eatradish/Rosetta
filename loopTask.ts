@@ -14,26 +14,25 @@ const loopGetNewReply = async () => {
             const data = await twitter.getNewMention(1);
             const userMentiom = mentionTable.find({ username: user.username });
             if (userMentiom.length === 0) {
-                mentionTable.insert({ username: user.username, mention: [[data[0].id_str, data[0].text]]});
+                mentionTable.insert({
+                    username: user.username,
+                    mention: [[data[0].id_str, data[0].user.screen_name, data[0].text]]
+                });
             }
             const LastMentionList = mentionTable.find({ username: user.username })[0].mention;
             const sinceId = LastMentionList[LastMentionList.length - 1][0];
             const data2 = await twitter.getNewMention(50, sinceId);
             if (data2.length !== 0) {
-                mentionTable.findAndUpdate({ username: user.username }, (res) => {
-                    res.mention.push([data[0].id_str, data[0].text]);
-                });
-                for (let i = 0; i < data2.length; i++) {
-                    if (user.tgId !== '') {
-                        tgBot.telegram.sendMessage(
-                            Number(user.tgId),
-                            `${data2[i].user.name} (@${data2[i].user.screen_name}): ${data2[i].text}`
-                        );
-                    }
+                for (let i = data2.length - 1; i >= 0; i--) {
+                    const s = `${data2[i].user.name} (@${data2[i].user.screen_name}): ${data2[i].text}`;
+                    mentionTable.findAndUpdate({ username: user.username }, (res) => {
+                        res.mention.push([data2[i].id_str, data2[i].user.screen_name, s]);
+                    });
+                    if (user.tgId !== '') await tgBot.telegram.sendMessage(Number(user.tgId), s);
                 }
             }
         }
-        await sleep(180000);
+        if (users.length !== 0) await sleep(180000);
     }
 }
 

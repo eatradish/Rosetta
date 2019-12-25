@@ -4,6 +4,7 @@ import getMessageArgs from '../tools/tgGetMessageArgs';
 import db from '../tools/database';
 import Twitter from '../twitter/bot';
 import { User } from '../interface';
+import sleep from '../tools/sleep';
 
 const config = Config('./config.json');
 
@@ -11,8 +12,9 @@ const tgBot = new Telegraf(config.tgBotToken);
 
 tgBot.command('login', async (ctx, next) => {
     if (ctx.chat) {
+        const users = db.getCollection('Users');
         const tgId = ctx.chat.id.toString();
-        const result = db.getCollection('Users').find({ tgId });
+        const result = users.find({ tgId });
         if (result.length === 0) {
             ctx.reply(`Please Open ${config.twitter.oauth_url}/session/connect?tgId=${ctx.chat.id} authorize Rosetta`);
         } else {
@@ -25,9 +27,10 @@ tgBot.command('login', async (ctx, next) => {
 });
 
 tgBot.command('myinfo', async (ctx, next) => {
+    const users = db.getCollection('Users');
     if (!ctx.chat) throw new Error('oops, cannot your get chat id');
     const tgId = ctx.chat.id.toString();
-    const result = db.getCollection('Users').find({ tgId });
+    const result = users.find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
     else {
         let account = '\n';
@@ -41,9 +44,10 @@ tgBot.command('myinfo', async (ctx, next) => {
 });
 
 tgBot.command('tweet', async (ctx, next) => {
+    const users = db.getCollection('Users');
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
-    const result = db.getCollection('Users').find({ tgId });
+    const result = users.find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
     else {
         const args = ctx.message.text;
@@ -62,9 +66,9 @@ tgBot.command('tweet', async (ctx, next) => {
 });
 
 tgBot.command('add_time_rule_tweet', async (ctx, next) => {
+    const users = db.getCollection('Users');
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
-    const users = db.getCollection('Users');
     const result = users.find({ tgId });
     if (result.length === 0) ctx.reply('You account does not exist');
     else {
@@ -99,8 +103,35 @@ tgBot.command('add_time_rule_tweet', async (ctx, next) => {
 });
 
 tgBot.on('text', async (ctx, next) => {
-    if (!ctx.message || !ctx.message.text) return;
-    console.log(ctx.message);
+    if (!ctx.message || !ctx.message.text || !ctx.chat) return;
+    if (!ctx.message.reply_to_message || !ctx.message.reply_to_message.text) return;
+    await sleep(100);
+    const users = db.getCollection('Users');
+    const mention = db.getCollection('Mention');
+    const message = ctx.message.reply_to_message.text;
+    const tgId = ctx.chat.id.toString();
+    if (users.find({ tgId }).length === 0) return;
+    const user = users.find({ tgId })[0];
+    const username = user.username;
+    const mentionList = mention.find({ username })[0].mention;
+    let tweetId = '';
+    let tweetScreenName = '';
+    for (const m of mentionList) {
+        if (m[2] === message) {
+            tweetId = m[0];
+            tweetScreenName = m[1];
+        }
+    }
+    if (tweetId === '' || tweetScreenName === '') return;
+    else {
+        try {
+            const twitter = new Twitter(user);
+            const res = await twitter.replyToTweet(tweetId, tweetScreenName, ctx.message.text);
+            if (res) ctx.reply(res);
+        } catch (err) {
+            throw err;
+        }
+    }
     await next!();
 });
 

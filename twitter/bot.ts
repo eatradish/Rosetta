@@ -70,13 +70,13 @@ class Twitter {
         }
     }
 
-    public async replyToTweet(tweetId: string, text: string): Promise<string> {
+    public async replyToTweet(tweetId: string, tweetScreenName: string ,text: string): Promise<string> {
         try {
             const data = await this.consumer.postAsync(
                 this.url + '/statuses/update.json',
                 this.oauthAccessToken,
                 this.oauthAccessTokenSecret,
-                { in_reply_to_status_id: tweetId, status: text },
+                { in_reply_to_status_id: tweetId, status: `@${tweetScreenName} ${text}` },
                 'application/json'
             );
             if (typeof data !== 'string') return 'cannot get tweet data';

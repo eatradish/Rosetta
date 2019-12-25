@@ -4,7 +4,7 @@ import Config from './tools/getConfig';
 import db from './tools/database';
 import tgBot from './telegram/bot';
 import AsyncOauth from './tools/asyncOauth';
-import loopGetNewReply from './loopTesk';
+import loopGetNewReply from './loopTask';
 
 const config = Config();
 
