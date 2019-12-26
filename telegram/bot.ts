@@ -116,17 +116,20 @@ tgBot.command('open_notifications', async (ctx, next) => {
     if (result.length === 0) ctx.reply('Your telegram id does not exist');
     const user = result[0];
     const username = user.username;
+
+    const userMention = mention.find({ username })[0];
+    if (userMention.isOpen) {
+        ctx.reply('Your notification is already opened');
+        return;
+    }
     
-    mention.findAndUpdate({ username }, async (data) => {
+    mention.findAndUpdate({ username }, (data) => {
+        data.isOpen = true;
         if (data.isOpen) {
-            await ctx.reply('Your notification is already open');
-            return;
-        } else {
-            data.isOpen = true;
+            ctx.reply('Mention Notifications is opened');
         }
     });
 
-    ctx.reply("Mention Notifications is opened");
     await next!();
 });
 
@@ -140,8 +143,20 @@ tgBot.command('close_notifications', async (ctx, next) => {
     if (result.length === 0) ctx.reply('Your telegram id does not exist');
     const user = result[0];
     const username = user.username;
-    mention.findAndUpdate({ username }, (data) => data.isOpen = false);
-    ctx.reply("Mention Notifications is closed");
+    const userMention = mention.find({ username })[0];
+
+    if (!userMention.isOpen) {
+        ctx.reply('Your notification is already closed');
+        return;
+    }
+
+    mention.findAndUpdate({ username }, (data) => {
+        data.isOpen = false;
+        if (!data.isOpen) {
+            ctx.reply("Mention Notifications is closed");
+        }
+    });
+
     await next!();
 });
 
