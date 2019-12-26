@@ -16,11 +16,14 @@ const loopGetNewReply = async () => {
             if (userMentiom.length === 0) {
                 mentionTable.insert({
                     username: user.username,
+                    isOpen: false,
                     mention: [[data[0].id_str, data[0].user.screen_name, data[0].text]]
                 });
             }
-            const LastMentionList = mentionTable.find({ username: user.username })[0].mention;
-            const sinceId = LastMentionList[LastMentionList.length - 1][0];
+            const lastMention = mentionTable.find({ username: user.username })[0];
+            if (!lastMention.isOpen) continue;
+            const lastMentionList = lastMention.mention;
+            const sinceId = lastMentionList[lastMentionList.length - 1][0];
             const data2 = await twitter.getNewMention(50, sinceId);
             if (data2.length !== 0) {
                 for (let i = data2.length - 1; i >= 0; i--) {

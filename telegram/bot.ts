@@ -13,6 +13,7 @@ const tgBot = new Telegraf(config.tgBotToken);
 tgBot.command('login', async (ctx, next) => {
     if (ctx.chat) {
         const users = db.getCollection('Users');
+        if (!users) return;
         const tgId = ctx.chat.id.toString();
         const result = users.find({ tgId });
         if (result.length === 0) {
@@ -28,6 +29,7 @@ tgBot.command('login', async (ctx, next) => {
 
 tgBot.command('myinfo', async (ctx, next) => {
     const users = db.getCollection('Users');
+    if (!users) return;
     if (!ctx.chat) throw new Error('oops, cannot your get chat id');
     const tgId = ctx.chat.id.toString();
     const result = users.find({ tgId });
@@ -45,6 +47,7 @@ tgBot.command('myinfo', async (ctx, next) => {
 
 tgBot.command('tweet', async (ctx, next) => {
     const users = db.getCollection('Users');
+    if (!users) return;
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
     const result = users.find({ tgId });
@@ -67,6 +70,7 @@ tgBot.command('tweet', async (ctx, next) => {
 
 tgBot.command('add_time_rule_tweet', async (ctx, next) => {
     const users = db.getCollection('Users');
+    if (!users) return;
     if (!ctx.chat || !ctx.message || !ctx.message.text) throw new Error('oops, cannot your get your text message');
     const tgId = ctx.chat.id.toString();
     const result = users.find({ tgId });
@@ -102,12 +106,53 @@ tgBot.command('add_time_rule_tweet', async (ctx, next) => {
     await next!();
 });
 
+tgBot.command('open_notifications', async (ctx, next) => {
+    if (!ctx.chat) return;
+    const users = db.getCollection('Users');
+    const mention = db.getCollection('Mention');
+    if (!users) return;
+    const tgId = ctx.chat.id.toString();
+    const result = users.find({ tgId });
+    if (result.length === 0) ctx.reply('Your telegram id does not exist');
+    const user = result[0];
+    const username = user.username;
+    
+    mention.findAndUpdate({ username }, async (data) => {
+        if (data.isOpen) {
+            await ctx.reply('Your notification is already open');
+            return;
+        } else {
+            data.isOpen = true;
+        }
+    });
+
+    ctx.reply("Mention Notifications is opened");
+    await next!();
+});
+
+tgBot.command('close_notifications', async (ctx, next) => {
+    if (!ctx.chat) return;
+    const users = db.getCollection('Users');
+    const mention = db.getCollection('Mention');
+    if (!users) return;
+    const tgId = ctx.chat.id.toString();
+    const result = users.find({ tgId });
+    if (result.length === 0) ctx.reply('Your telegram id does not exist');
+    const user = result[0];
+    const username = user.username;
+    mention.findAndUpdate({ username }, (data) => data.isOpen = false);
+    ctx.reply("Mention Notifications is closed");
+    await next!();
+});
+
 tgBot.command('delete_tweet', async (ctx, next) => {
     if (!ctx.message || !ctx.message.text || !ctx.chat) return;
     const tgId = ctx.chat.id.toString();
-    const users = db.getCollection('Users').find({ tgId });
-    if (users.length === 0) ctx.reply('Your telegram id does not exist');
-    const user = users[0];
+    const users = db.getCollection('Users');
+    if (!users) return;
+    const result = users.find({ tgId });
+    if (result.length === 0) ctx.reply('Your telegram id does not exist');
+    const user = result[0];
     const args = getMessageArgs(ctx.message.text);
     try {
         const twitter = new Twitter(user);

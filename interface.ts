@@ -39,5 +39,6 @@ export interface TimeRule {
 
 export interface Mention {
     username: string;
+    isOpen: boolean;
     mention: string[][];
 }
