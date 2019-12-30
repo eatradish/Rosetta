@@ -1,13 +1,15 @@
 import AsyncOauth from '../tools/asyncOauth';
 import Config from '../tools/getConfig';
 import { User } from '../interface';
+import { TwitterResponse } from './interface';
+import { isString } from 'util';
 
 class Twitter {
     private consumer: AsyncOauth;
-    private user: User;
     private oauthAccessToken: string;
     private oauthAccessTokenSecret: string;
     private url = 'https://api.twitter.com/1.1';
+    public user: User;
 
     public constructor(user: User) {
         const config = Config();
@@ -30,7 +32,7 @@ class Twitter {
         this.oauthAccessTokenSecret = user.oauthAccessTokenSecret;
     }
 
-    public async tweet(text: string): Promise<string> {
+    public async tweet(text: string): Promise<TwitterResponse> {
         try {
             const body = { status: text };
             const data = await this.consumer.postAsync(
@@ -40,20 +42,19 @@ class Twitter {
                 body,
                 'application/json'
             );
-            if (typeof data !== 'string') return 'cannot get tweet data';
-            const json = JSON.parse(data);
-            if (json.id_str) {
+            return (data && isString(data)) ? JSON.parse(data) as TwitterResponse : {} as TwitterResponse;
+            /*if (json.id_str) {
                 return '' +
                     `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;
             } else {
                 return 'failed';
-            }
+            }*/
         } catch (err) {
             throw err;
         }
     }
 
-    public async getNewMention(count?: number, sinceId?: number): Promise<any | any[]> {
+    public async getNewMention(count?: number, sinceId?: number): Promise<TwitterResponse[]> {
         const countArg = count ? `count=${count}&` : '';
         const sinceIdArg = sinceId ? `since_id=${sinceId}&` : '';
         try {
@@ -62,15 +63,17 @@ class Twitter {
                 this.oauthAccessToken,
                 this.oauthAccessTokenSecret
             );
-            if (typeof data !== 'string') return 'cannot get tweet data';
-            const json = JSON.parse(data);
-            return json;
+            return (data && isString(data)) ? JSON.parse(data) as TwitterResponse[] : {} as TwitterResponse[];
         } catch (err) {
             throw err;
         }
     }
 
-    public async replyToTweet(tweetId: string, tweetScreenName: string ,text: string): Promise<string> {
+    public async replyToTweet(
+        tweetId: string,
+        tweetScreenName: string,
+        text: string
+    ): Promise<TwitterResponse> {
         try {
             const data = await this.consumer.postAsync(
                 this.url + '/statuses/update.json',
@@ -79,31 +82,44 @@ class Twitter {
                 { in_reply_to_status_id: tweetId, status: `@${tweetScreenName} ${text}` },
                 'application/json'
             );
-            if (typeof data !== 'string') return 'cannot get tweet data';
-            const json = JSON.parse(data);
-            if (json.id_str) {
+            return (data && isString(data)) ? JSON.parse(data) as TwitterResponse : {} as TwitterResponse;
+            /*if (json.id_str) {
                 return `Success~ your tweet link: https://twitter.com/${json.user.screen_name}/status/${json.id_str}`;
             } else {
                 return 'failed';
-            }
+            }*/
         } catch (err) {
             throw err;
         }
     }
 
-    public async deleteTweet(tweetId: string) {
+    public async deleteTweet(tweetId: string): Promise<TwitterResponse>  {
         try {
-            const data = await  this.consumer.postAsync(
+            const data = await this.consumer.postAsync(
                 this.url + `/statuses/destroy/${tweetId}.json`,
                 this.oauthAccessToken,
                 this.oauthAccessTokenSecret,
                 null,
                 'application/json'
-            )
-            if (typeof data !== 'string') return 'cannot get tweet data';
-            const json = JSON.parse(data);
+            );
+            return (data && isString(data)) ? JSON.parse(data) as TwitterResponse : {} as TwitterResponse;
+            /*
             if (data) return `Tweet https://twitter.com/${json.user.screen_name}/status/${tweetId} removed`;
-            else return `cannot remove ${tweetId}`;
+            else return `cannot remove ${tweetId}`;*/
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    public async getUserTimeline(screenName: string, count?: string): Promise<TwitterResponse[]> {
+        const countArg = count ? `count=${count}&` : '';
+        try {
+            const data = await this.consumer.getAsync(
+                this.url + `statuses/user_timeline.json?screen_name=${screenName}&${countArg}`,
+                this.oauthAccessToken,
+                this.oauthAccessTokenSecret
+            );
+            return (data && isString(data)) ? JSON.parse(data) as TwitterResponse[] : {} as TwitterResponse[];
         } catch (err) {
             throw err;
         }
