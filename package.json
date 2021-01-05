@@ -17,7 +17,7 @@
     "@types/lokijs": "^1.5.2",
     "@types/oauth": "^0.9.1",
     "@types/twit": "^2.2.23",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "axios-retry": "^3.1.2",
     "koa": "^2.11.0",
     "koa-body": "^4.1.1",
